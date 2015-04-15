@@ -17,7 +17,8 @@ PROJECTS := ad6676evb ad9265_fmc ad9434_fmc ad9467_fmc ad9671_fmc \
 	daq1 daq2 daq3 \
 	fmcadc2 fmcadc4 fmcadc5 fmcjesdadc1 \
 	fmcomms1 fmcomms2 fmcomms2_pr fmcomms5 fmcomms6 fmcomms7 \
-	motcon2_fmc pmods scripts usdrx1
+	motcon2_fmc pmods scripts usdrx1 \
+	fmcomms2_df
 
 ARCH := a5gt a5gte a5soc ac701 ad7175_zed c5soc cpld kc705 kcu105 mitx045 ml605 vc707 xfest14_zed xilinx zc702 zc706 zed
 
@@ -51,14 +52,16 @@ endef
 $(foreach projname,$(PROJECTS), $(eval $(call APROJECT_RULE,$(projname))))
 
 distclean:
-	rm -rf library/*/*.backup.jou
-	rm -rf library/*/*.backup.log
-	rm -rf library/*/*.cache
-	rm -rf library/*/component.xml
-	rm -rf library/*/vivado.jou
-	rm -rf library/*/vivado.log
-	rm -rf library/*/xgui
-	rm -rf library/*/*.xpr
+	@for libname in $(LIBRARIES) ; do \
+	    rm -rf library/$$libname/*.backup.jou; \
+	    rm -rf library/$$libname/*.backup.log; \
+	    rm -rf library/$$libname/*.cache; \
+	    rm -rf library/$$libname/component.xml; \
+	    rm -rf library/$$libname/vivado.jou; \
+	    rm -rf library/$$libname/vivado.log; \
+	    rm -rf library/$$libname/xgui; \
+	    rm -rf library/$$libname/*.xpr; \
+	done
 
 clean:
 	rm -rf projects/*/*/*.cache
@@ -73,3 +76,4 @@ clean:
 	rm -rf projects/*/*/vivado.jou
 	rm -rf projects/*/*/vivado.log
 	rm -rf projects/*/*/*.xpr
+	rm -f vivado.log vivado.jou
