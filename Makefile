@@ -12,6 +12,5 @@ LIBRARIES =axi_ad6676 axi_ad7175 axi_ad9122 axi_ad9144 axi_ad9152 \
 	util_rfifo util_sync_reset util_wfifo
 
 library/$$($(LIBRARIES))/component.xml:
-	cd library/$@
-	vivado -mode batch -source $@_ip.tcl 
+	cd library/$@; vivado -mode batch -source $@_ip.tcl 
 
