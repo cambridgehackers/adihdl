@@ -49,3 +49,27 @@ $(foreach archname,$(ARCH), $(eval $(call PROJECT_RULE,$1,$(archname))))
 endef
 
 $(foreach projname,$(PROJECTS), $(eval $(call APROJECT_RULE,$(projname))))
+
+distclean:
+	rm -rf library/*/*.backup.jou
+	rm -rf library/*/*.backup.log
+	rm -rf library/*/*.cache
+	rm -rf library/*/component.xml
+	rm -rf library/*/vivado.jou
+	rm -rf library/*/vivado.log
+	rm -rf library/*/xgui
+	rm -rf library/*/*.xpr
+
+clean:
+	rm -rf projects/*/*/*.cache
+	rm -rf projects/*/*/ps_clock_registers.log
+	rm -rf projects/*/*/*.runs
+	rm -rf projects/*/*/*.sdk
+	rm -rf projects/*/*/*.srcs
+	rm -rf projects/*/*/timing_impl.log
+	rm -rf projects/*/*/timing_synth.log
+	rm -rf projects/*/*/vivado_*.backup.jou
+	rm -rf projects/*/*/vivado_*.backup.log
+	rm -rf projects/*/*/vivado.jou
+	rm -rf projects/*/*/vivado.log
+	rm -rf projects/*/*/*.xpr
