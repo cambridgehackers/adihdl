@@ -19,7 +19,7 @@ PROJECTS := ad6676evb ad9265_fmc ad9434_fmc ad9467_fmc ad9671_fmc \
 	fmcomms1 fmcomms2 fmcomms2_pr fmcomms5 fmcomms6 fmcomms7 \
 	motcon2_fmc pmods scripts usdrx1
 
-ARCH := a5gt a5gte a5soc ac701 ad7175_zed c5soc common cpld kc705 kcu105 mitx045 ml605 vc707 xfest14_zed xilinx zc702 zc706 zed
+ARCH := a5gt a5gte a5soc ac701 ad7175_zed c5soc cpld kc705 kcu105 mitx045 ml605 vc707 xfest14_zed xilinx zc702 zc706 zed
 
 all:
 	for libname in $(LIBRARIES) ; do \
