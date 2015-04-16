@@ -1,26 +1,8 @@
 
-LIBRARIES := axi_ad6676 axi_ad7175 axi_ad9122 axi_ad9144 axi_ad9152 \
-	axi_ad9234 axi_ad9250 axi_ad9265 axi_ad9361 axi_ad9434 \
-	axi_ad9467 axi_ad9625 axi_ad9643 axi_ad9652 axi_ad9671 \
-	axi_ad9680 axi_ad9739a axi_clkgen axi_dmac \
-	axi_fifo2f axi_fifo2s \
-	axi_hdmi_tx axi_i2s_adi axi_jesd_gt \
-	axi_mc_controller axi_mc_current_monitor axi_mc_speed \
-	axi_spdif_tx controllerperipheralhdladi_pcore \
-	scripts \
-	util_adc_pack util_cpack util_dac_unpack util_gmii_to_rgmii util_i2c_mixer \
-	util_rfifo util_sync_reset util_wfifo
-#No *_ip.tcl file: axi_fifo common ip_pid_controller prcfg 
-
-PROJECTS := ad6676evb ad9265_fmc ad9434_fmc ad9467_fmc ad9671_fmc \
-	ad9739a_fmc adv7511 common \
-	daq1 daq2 daq3 \
-	fmcadc2 fmcadc4 fmcadc5 fmcjesdadc1 \
-	fmcomms1 fmcomms2 fmcomms2_pr fmcomms5 fmcomms6 fmcomms7 \
-	motcon2_fmc pmods scripts usdrx1 \
-	fmcomms2_df
-
-ARCH := a5gt a5gte a5soc ac701 ad7175_zed c5soc cpld kc705 kcu105 mitx045 ml605 vc707 xfest14_zed xilinx zc702 zc706 zed
+NO_LIB := axi_fifo common ip_pid_controller prcfg 
+LIBRARIES := $(filter-out $(NO_LIB), $(shell ls library))
+NO_PROJ := 
+PROJECTS := $(filter-out $(NO_PROJ), $(shell ls projects))
 
 all:
 	for libname in $(LIBRARIES) ; do \
@@ -28,52 +10,48 @@ all:
 	done
 
 define LIBRARY_RULE
-library/$1/component.xml:
-	echo Building $1; \
+$1:
 	cd library/$1; vivado -mode batch -source $1_ip.tcl 
-
-$1: library/$1/component.xml
 endef
 
 $(foreach libname,$(LIBRARIES), $(eval $(call LIBRARY_RULE,$(libname))))
 
 define PROJECT_RULE
-projects/$1/$2/foo:
-	echo Building $1; \
+$1.$2:
 	cd projects/$1/$2; vivado -mode batch -source system_project.tcl 
-
-$1.$2: projects/$1/$2/foo
 endef
 
 define APROJECT_RULE
-$(foreach archname,$(ARCH), $(eval $(call PROJECT_RULE,$1,$(archname))))
+$(foreach archname,$(shell ls projects/$1), $(eval $(call PROJECT_RULE,$1,$(archname))))
 endef
 
 $(foreach projname,$(PROJECTS), $(eval $(call APROJECT_RULE,$(projname))))
 
-distclean:
-	@for libname in $(LIBRARIES) ; do \
-	    rm -rf library/$$libname/*.backup.jou; \
-	    rm -rf library/$$libname/*.backup.log; \
-	    rm -rf library/$$libname/*.cache; \
-	    rm -rf library/$$libname/component.xml; \
-	    rm -rf library/$$libname/vivado.jou; \
-	    rm -rf library/$$libname/vivado.log; \
-	    rm -rf library/$$libname/xgui; \
-	    rm -rf library/$$libname/*.xpr; \
+distclean: clean
+	@for name in $(LIBRARIES) ; do \
+	    rm -rf library/$$name/*.backup.jou; \
+	    rm -rf library/$$name/*.backup.log; \
+	    rm -rf library/$$name/*.cache; \
+	    rm -rf library/$$name/component.xml; \
+	    rm -rf library/$$name/vivado.jou; \
+	    rm -rf library/$$name/vivado.log; \
+	    rm -rf library/$$name/xgui; \
+	    rm -rf library/$$name/*.xpr; \
 	done
 
 clean:
-	rm -rf projects/*/*/*.cache
-	rm -rf projects/*/*/ps_clock_registers.log
-	rm -rf projects/*/*/*.runs
-	rm -rf projects/*/*/*.sdk
-	rm -rf projects/*/*/*.srcs
-	rm -rf projects/*/*/timing_impl.log
-	rm -rf projects/*/*/timing_synth.log
-	rm -rf projects/*/*/vivado_*.backup.jou
-	rm -rf projects/*/*/vivado_*.backup.log
-	rm -rf projects/*/*/vivado.jou
-	rm -rf projects/*/*/vivado.log
-	rm -rf projects/*/*/*.xpr
-	rm -f vivado.log vivado.jou
+	@for name in $(PROJECTS) ; do \
+	    rm -rf projects/$$name/*/*.cache; \
+	    rm -rf projects/$$name/*/ps_clock_registers.log; \
+	    rm -rf projects/$$name/*/*.runs; \
+	    rm -rf projects/$$name/*/*.sdk; \
+	    rm -rf projects/$$name/*/*.srcs; \
+	    rm -rf projects/$$name/*/timing_impl.log; \
+	    rm -rf projects/$$name/*/timing_synth.log; \
+	    rm -rf projects/$$name/*/vivado_*.backup.jou; \
+	    rm -rf projects/$$name/*/vivado_*.backup.log; \
+	    rm -rf projects/$$name/*/vivado.jou; \
+	    rm -rf projects/$$name/*/vivado.log; \
+	    rm -rf projects/$$name/*/*.xpr; \
+	done
+	@rm -f vivado.log vivado.jou
