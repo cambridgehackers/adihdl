@@ -80,44 +80,31 @@ module system_top (
 
   spdif,
 
+  dac_clk_in_p,
+  dac_clk_in_n,
+  dac_clk_out_p,
+  dac_clk_out_n,
+  dac_frame_out_p,
+  dac_frame_out_n,
+  dac_data_out_p,
+  dac_data_out_n,
+
+  adc_clk_in_p,
+  adc_clk_in_n,
+  adc_or_in_p,
+  adc_or_in_n,
+  adc_data_in_p,
+  adc_data_in_n,
+
+  ref_clk_out_p,
+  ref_clk_out_n,
+
   iic_scl,
   iic_sda,
   iic_mux_scl,
   iic_mux_sda,
 
   otg_vbusoc,
-
-  rx_clk_in_p,
-  rx_clk_in_n,
-  rx_frame_in_p,
-  rx_frame_in_n,
-  rx_data_in_p,
-  rx_data_in_n,
-  tx_clk_out_p,
-  tx_clk_out_n,
-  tx_frame_out_p,
-  tx_frame_out_n,
-  tx_data_out_p,
-  tx_data_out_n,
-
-  gpio_txnrx,
-  gpio_enable,
-  gpio_resetb,
-  gpio_sync,
-  gpio_en_agc,
-  gpio_ctl,
-  gpio_status,
-
-  spi_csn,
-  spi_clk,
-  spi_mosi,
-  spi_miso,
-
-//  spi_udc_csn_tx,
-//  spi_udc_csn_rx,
-//  spi_udc_sclk,
-//  spi_udc_data,
-
   df_gpio_io,
   i2c0_scl_io,
   i2c0_sda_io,
@@ -126,7 +113,8 @@ module system_top (
   i2c2_scl_io,
   i2c2_sda_io,
   i2c3_scl_io,
-  i2c3_sda_io,
+  i2c3_sda_io
+		   
 );
 
   inout [3:0]df_gpio_io;
@@ -178,6 +166,25 @@ module system_top (
   output          i2s_sdata_out;
   input           i2s_sdata_in;
 
+  input           dac_clk_in_p;
+  input           dac_clk_in_n;
+  output          dac_clk_out_p;
+  output          dac_clk_out_n;
+  output          dac_frame_out_p;
+  output          dac_frame_out_n;
+  output  [15:0]  dac_data_out_p;
+  output  [15:0]  dac_data_out_n;
+
+  input           adc_clk_in_p;
+  input           adc_clk_in_n;
+  input           adc_or_in_p;
+  input           adc_or_in_n;
+  input   [13:0]  adc_data_in_p;
+  input   [13:0]  adc_data_in_n;
+
+  output          ref_clk_out_p;
+  output          ref_clk_out_n;
+
   inout           iic_scl;
   inout           iic_sda;
   inout   [ 1:0]  iic_mux_scl;
@@ -185,42 +192,36 @@ module system_top (
 
   input           otg_vbusoc;
 
-  input           rx_clk_in_p;
-  input           rx_clk_in_n;
-  input           rx_frame_in_p;
-  input           rx_frame_in_n;
-  input   [ 5:0]  rx_data_in_p;
-  input   [ 5:0]  rx_data_in_n;
-  output          tx_clk_out_p;
-  output          tx_clk_out_n;
-  output          tx_frame_out_p;
-  output          tx_frame_out_n;
-  output  [ 5:0]  tx_data_out_p;
-  output  [ 5:0]  tx_data_out_n;
+  // internal registers
 
-  inout           gpio_txnrx;
-  inout           gpio_enable;
-  inout           gpio_resetb;
-  inout           gpio_sync;
-  inout           gpio_en_agc;
-  inout   [ 3:0]  gpio_ctl;
-  inout   [ 7:0]  gpio_status;
-
-  output          spi_csn;
-  output          spi_clk;
-  output          spi_mosi;
-  input           spi_miso;
-
-  // output          spi_udc_csn_tx;
-  // output          spi_udc_csn_rx;
-  // output          spi_udc_sclk;
-  // output          spi_udc_data;
+  reg     [63:0]  dac_ddata_0 = 'd0;
+  reg     [63:0]  dac_ddata_1 = 'd0;
+  reg             dac_dma_rd = 'd0;
+  reg             adc_data_cnt = 'd0;
+  reg             adc_dma_wr = 'd0;
+  reg     [31:0]  adc_dma_wdata = 'd0;
 
   // internal signals
 
-  wire    [48:0]  gpio_i;
-  wire    [48:0]  gpio_o;
-  wire    [48:0]  gpio_t;
+  wire    [31:0]  gpio_i;
+  wire    [31:0]  gpio_o;
+  wire    [31:0]  gpio_t;
+  wire            dac_clk;
+  wire            dac_valid_0;
+  wire            dac_enable_0;
+  wire            dac_valid_1;
+  wire            dac_enable_1;
+  wire    [63:0]  dac_dma_rdata;
+  wire            adc_clk;
+  wire            adc_valid_0;
+  wire            adc_enable_0;
+  wire    [15:0]  adc_data_0;
+  wire            adc_valid_1;
+  wire            adc_enable_1;
+  wire    [15:0]  adc_data_1;
+  wire            ref_clk;
+  wire            oddr_ref_clk;
+
   wire    [ 1:0]  iic_mux_scl_i_s;
   wire    [ 1:0]  iic_mux_scl_o_s;
   wire            iic_mux_scl_t_s;
@@ -231,30 +232,77 @@ module system_top (
 
   // instantiations
 
-  ad_iobuf #(.DATA_WIDTH(49)) i_iobuf_gpio (
-    .dt ({gpio_t[48:0]}),
-    .di ({gpio_o[48:0]}),
-    .do ({gpio_i[48:0]}),
-    .dio({  gpio_txnrx,
-            gpio_enable,
-            gpio_resetb,
-            gpio_sync,
-            gpio_en_agc,
-            gpio_ctl,
-            gpio_status,
-            gpio_bd}));
+  ODDR #(
+    .DDR_CLK_EDGE ("SAME_EDGE"),
+    .INIT (1'b0),
+    .SRTYPE ("ASYNC"))
+  i_oddr_ref_clk (
+    .S (1'b0),
+    .CE (1'b1),
+    .R (1'b0),
+    .C (ref_clk),
+    .D1 (1'b1),
+    .D2 (1'b0),
+    .Q (oddr_ref_clk));
 
-   ad_iobuf #(.DATA_WIDTH(2)) i_iobuf_iic_scl (
-    .dt ({iic_mux_scl_t_s,iic_mux_scl_t_s}),
-    .di (iic_mux_scl_o_s),
-    .do (iic_mux_scl_i_s),
+  OBUFDS i_obufds_ref_clk (
+    .I (oddr_ref_clk),
+    .O (ref_clk_out_p),
+    .OB (ref_clk_out_n));
+
+  ad_iobuf #(
+    .DATA_WIDTH(32))
+  i_gpio_bd (
+    .dt(gpio_t),
+    .di(gpio_o),
+    .do(gpio_i),
+    .dio(gpio_bd));
+
+ ad_iobuf #(
+    .DATA_WIDTH(2))
+ i_iic_mux_scl (
+    .dt({iic_mux_scl_t_s, iic_mux_scl_t_s}),
+    .di(iic_mux_scl_o_s),
+    .do(iic_mux_scl_i_s),
     .dio(iic_mux_scl));
 
-   ad_iobuf #(.DATA_WIDTH(2)) i_iobuf_iic_sda (
-    .dt ({iic_mux_sda_t_s,iic_mux_sda_t_s}),
-    .di (iic_mux_sda_o_s),
-    .do (iic_mux_sda_i_s),
+  ad_iobuf #(
+    .DATA_WIDTH(2))
+  i_iic_mux_sda (
+    .dt({iic_mux_sda_t_s, iic_mux_sda_t_s}),
+    .di(iic_mux_sda_o_s),
+    .do(iic_mux_sda_i_s),
     .dio(iic_mux_sda));
+
+  always @(posedge dac_clk) begin
+    dac_dma_rd <= dac_valid_0 & dac_enable_0;
+    dac_ddata_1[63:48] <= dac_dma_rdata[63:48];
+    dac_ddata_1[47:32] <= dac_dma_rdata[63:48];
+    dac_ddata_1[31:16] <= dac_dma_rdata[31:16];
+    dac_ddata_1[15: 0] <= dac_dma_rdata[31:16];
+    dac_ddata_0[63:48] <= dac_dma_rdata[47:32];
+    dac_ddata_0[47:32] <= dac_dma_rdata[47:32];
+    dac_ddata_0[31:16] <= dac_dma_rdata[15: 0];
+    dac_ddata_0[15: 0] <= dac_dma_rdata[15: 0];
+  end
+
+  always @(posedge adc_clk) begin
+    adc_data_cnt <= ~adc_data_cnt ;
+    case ({adc_enable_1, adc_enable_0})
+      2'b10: begin
+        adc_dma_wr <= adc_data_cnt;
+        adc_dma_wdata <= {adc_data_1, adc_dma_wdata[31:16]};
+      end
+      2'b01: begin
+        adc_dma_wr <= adc_data_cnt;
+        adc_dma_wdata <= {adc_data_0, adc_dma_wdata[31:16]};
+      end
+      default: begin
+        adc_dma_wr <= 1'b1;
+        adc_dma_wdata <= {adc_data_1, adc_data_0};
+      end
+    endcase
+  end
 
   system_wrapper i_system_wrapper (
     .DDR_addr (DDR_addr),
@@ -281,6 +329,39 @@ module system_top (
     .GPIO_I (gpio_i),
     .GPIO_O (gpio_o),
     .GPIO_T (gpio_t),
+    .adc_clk (adc_clk),
+    .adc_clk_in_n (adc_clk_in_n),
+    .adc_clk_in_p (adc_clk_in_p),
+    .adc_data_0 (adc_data_0),
+    .adc_data_1 (adc_data_1),
+    .adc_data_in_n (adc_data_in_n),
+    .adc_data_in_p (adc_data_in_p),
+    .adc_dma_sync (1'b1),
+    .adc_dma_wdata (adc_dma_wdata),
+    .adc_dma_wr (adc_dma_wr),
+    .adc_enable_0 (adc_enable_0),
+    .adc_enable_1 (adc_enable_1),
+    .adc_or_in_n (adc_or_in_n),
+    .adc_or_in_p (adc_or_in_p),
+    .adc_valid_0 (adc_valid_0),
+    .adc_valid_1 (adc_valid_1),
+    .dac_clk (dac_clk),
+    .dac_clk_in_n (dac_clk_in_n),
+    .dac_clk_in_p (dac_clk_in_p),
+    .dac_clk_out_n (dac_clk_out_n),
+    .dac_clk_out_p (dac_clk_out_p),
+    .dac_data_out_n (dac_data_out_n),
+    .dac_data_out_p (dac_data_out_p),
+    .dac_ddata_0 (dac_ddata_0),
+    .dac_ddata_1 (dac_ddata_1),
+    .dac_dma_rd (dac_dma_rd),
+    .dac_dma_rdata (dac_dma_rdata),
+    .dac_enable_0 (dac_enable_0),
+    .dac_enable_1 (dac_enable_1),
+    .dac_frame_out_n (dac_frame_out_n),
+    .dac_frame_out_p (dac_frame_out_p),
+    .dac_valid_0 (dac_valid_0),
+    .dac_valid_1 (dac_valid_1),
     .hdmi_data (hdmi_data),
     .hdmi_data_e (hdmi_data_e),
     .hdmi_hsync (hdmi_hsync),
@@ -299,41 +380,20 @@ module system_top (
     .iic_mux_sda_I (iic_mux_sda_i_s),
     .iic_mux_sda_O (iic_mux_sda_o_s),
     .iic_mux_sda_T (iic_mux_sda_t_s),
+    .ps_intr_0 (ps_intrs[0]),
+    .ps_intr_1 (ps_intrs[1]),
     .ps_intr_10 (ps_intrs[10]),
+    .ps_intr_2 (ps_intrs[2]),
+    .ps_intr_3 (ps_intrs[3]),
+    .ps_intr_4 (ps_intrs[4]),
     .ps_intr_5 (ps_intrs[5]),
     .ps_intr_6 (ps_intrs[6]),
     .ps_intr_7 (ps_intrs[7]),
     .ps_intr_8 (ps_intrs[8]),
     .ps_intr_9 (ps_intrs[9]),
+    .ref_clk (ref_clk),
     .otg_vbusoc (otg_vbusoc),
-    .rx_clk_in_n (rx_clk_in_n),
-    .rx_clk_in_p (rx_clk_in_p),
-    .rx_data_in_n (rx_data_in_n),
-    .rx_data_in_p (rx_data_in_p),
-    .rx_frame_in_n (rx_frame_in_n),
-    .rx_frame_in_p (rx_frame_in_p),
     .spdif (spdif),
-    .spi_csn_i (1'b1),
-    .spi_csn_o (spi_csn),
-    .spi_miso_i (spi_miso),
-    .spi_mosi_i (1'b0),
-    .spi_mosi_o (spi_mosi),
-    .spi_sclk_i (1'b0),
-    .spi_sclk_o (spi_clk),
-    .tx_clk_out_n (tx_clk_out_n),
-    .tx_clk_out_p (tx_clk_out_p),
-    .tx_data_out_n (tx_data_out_n),
-    .tx_data_out_p (tx_data_out_p),
-    .tx_frame_out_n (tx_frame_out_n),
-    .tx_frame_out_p (tx_frame_out_p),
-    // .spi_udc_clk_i (1'b0),
-    // .spi_udc_clk_o (spi_udc_sclk),
-    // .spi_udc_csn_i (1'b1),
-    // .spi_udc_csn_tx_o (spi_udc_csn_tx),
-    // .spi_udc_csn_rx_o (spi_udc_csn_rx),
-    // .spi_udc_mosi_i (spi_udc_data),
-    // .spi_udc_mosi_o (spi_udc_data),
-    // .spi_udc_miso_i (1'b0),
     .df_gpio_io (df_gpio_io),
     .i2c0_scl_io (i2c0_scl_io),
     .i2c0_sda_io (i2c0_sda_io),
@@ -343,7 +403,7 @@ module system_top (
     .i2c2_sda_io (i2c2_sda_io),
     .i2c3_scl_io (i2c3_scl_io),
     .i2c3_sda_io (i2c3_sda_io)
-);
+;
 
 endmodule
 
