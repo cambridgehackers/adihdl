@@ -16,6 +16,14 @@ foreach pin [get_bd_pins sys_concat_intc/*] {
     puts [get_bd_net -of_objects $pin]
 }
 
+## remove some unused interrupt ports and nets to make room for us
+delete_bd_objs [get_bd_nets ps_intr_0_s] [get_bd_ports ps_intr_0]
+delete_bd_objs [get_bd_nets ps_intr_1_s] [get_bd_ports ps_intr_1]
+delete_bd_objs [get_bd_nets ps_intr_2_s] [get_bd_ports ps_intr_2]
+delete_bd_objs [get_bd_nets ps_intr_3_s] [get_bd_ports ps_intr_3]
+delete_bd_objs [get_bd_nets ps_intr_4_s] [get_bd_ports ps_intr_4]
+
+
 set_property -dict [list CONFIG.NUM_MI {15}] $axi_cpu_interconnect
 set sys_100m_resetn_source [get_bd_pins sys_rstgen/peripheral_aresetn]
 puts [get_bd_pins sys_rstgen/peripheral_aresetn]
@@ -30,7 +38,8 @@ connect_bd_net [get_bd_pins axi_fmcomms2_df_gpio/s_axi_aresetn] $sys_100m_resetn
 #connect_bd_net -net df_gpio_i [get_bd_ports df_gpio_i]    [get_bd_pins axi_fmcomms2_df_gpio/gpio_io_i]
 #connect_bd_net -net df_gpio_o [get_bd_ports df_gpio_o]    [get_bd_pins axi_fmcomms2_df_gpio/gpio_io_o]
 #connect_bd_net -net df_gpio_t [get_bd_ports df_gpio_t]    [get_bd_pins axi_fmcomms2_df_gpio/gpio_io_t]
-#connect_bd_net   [get_bd_pins sys_concat_intc/In14] [get_bd_pins axi_fmcomms2_df_gpio/ip2intc_irpt]
+puts [get_bd_pins axi_fmcomms2_df_gpio/*]
+connect_bd_net   [get_bd_pins sys_concat_intc/In4] [get_bd_pins axi_fmcomms2_df_gpio/ip2intc_irpt]
 
 set axi_fmcomms2_df_i2c0 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_fmcomms2_df_i2c0]
 #set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_fmcomms2_df_i2c0
@@ -40,7 +49,8 @@ connect_bd_net -net sys_100m_clk [get_bd_pins axi_fmcomms2_df_i2c0/s_axi_aclk] $
 connect_bd_net [get_bd_pins axi_cpu_interconnect/M11_ARESETN] $sys_100m_resetn_source
 connect_bd_net [get_bd_pins axi_fmcomms2_df_i2c0/s_axi_aresetn] $sys_100m_resetn_source
 connect_bd_intf_net -intf_net i2c0 [get_bd_intf_ports I2C0] [get_bd_intf_pins axi_fmcomms2_df_i2c0/iic]
-#connect_bd_net   [get_bd_pins sys_concat_intc/In15] [get_bd_pins axi_fmcomms2_df_i2c0/ip2intc_irpt]
+puts [get_bd_pins axi_fmcomms2_df_i2c0/*]
+connect_bd_net   [get_bd_pins sys_concat_intc/In0] [get_bd_pins axi_fmcomms2_df_i2c0/iic2intc_irpt]
 
 set axi_fmcomms2_df_i2c1 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_fmcomms2_df_i2c1]
 #set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_fmcomms2_df_i2c1
@@ -50,7 +60,7 @@ connect_bd_net -net sys_100m_clk [get_bd_pins axi_fmcomms2_df_i2c1/s_axi_aclk] $
 connect_bd_net [get_bd_pins axi_cpu_interconnect/M12_ARESETN] $sys_100m_resetn_source
 connect_bd_net [get_bd_pins axi_fmcomms2_df_i2c1/s_axi_aresetn] $sys_100m_resetn_source
 connect_bd_intf_net -intf_net i2c1 [get_bd_intf_ports I2C1] [get_bd_intf_pins axi_fmcomms2_df_i2c1/iic]
-#connect_bd_net   [get_bd_pins sys_concat_intc/In15] [get_bd_pins axi_fmcomms2_df_i2c1/ip2intc_irpt]
+connect_bd_net   [get_bd_pins sys_concat_intc/In1] [get_bd_pins axi_fmcomms2_df_i2c1/iic2intc_irpt]
 
 set axi_fmcomms2_df_i2c2 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_fmcomms2_df_i2c2]
 #set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_fmcomms2_df_i2c2
@@ -60,7 +70,7 @@ connect_bd_net -net sys_100m_clk [get_bd_pins axi_fmcomms2_df_i2c2/s_axi_aclk] $
 connect_bd_net [get_bd_pins axi_cpu_interconnect/M13_ARESETN] $sys_100m_resetn_source
 connect_bd_net [get_bd_pins axi_fmcomms2_df_i2c2/s_axi_aresetn] $sys_100m_resetn_source
 connect_bd_intf_net -intf_net i2c2 [get_bd_intf_ports I2C2] [get_bd_intf_pins axi_fmcomms2_df_i2c2/iic]
-#connect_bd_net   [get_bd_pins sys_concat_intc/In15] [get_bd_pins axi_fmcomms2_df_i2c2/ip2intc_irpt]
+connect_bd_net   [get_bd_pins sys_concat_intc/In2] [get_bd_pins axi_fmcomms2_df_i2c2/iic2intc_irpt]
 
 set axi_fmcomms2_df_i2c3 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_fmcomms2_df_i2c3]
 #set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_fmcomms2_df_i2c3
@@ -70,7 +80,7 @@ connect_bd_net -net sys_100m_clk [get_bd_pins axi_fmcomms2_df_i2c3/s_axi_aclk] $
 connect_bd_net [get_bd_pins axi_cpu_interconnect/M14_ARESETN] $sys_100m_resetn_source
 connect_bd_net [get_bd_pins axi_fmcomms2_df_i2c3/s_axi_aresetn] $sys_100m_resetn_source
 connect_bd_intf_net -intf_net i2c3 [get_bd_intf_ports I2C3] [get_bd_intf_pins axi_fmcomms2_df_i2c3/iic]
-#connect_bd_net   [get_bd_pins sys_concat_intc/In15] [get_bd_pins axi_fmcomms2_df_i2c3/ip2intc_irpt]
+connect_bd_net   [get_bd_pins sys_concat_intc/In3] [get_bd_pins axi_fmcomms2_df_i2c3/iic2intc_irpt]
 
 puts $sys_addr_cntrl_space
 puts [get_bd_addr_segs axi_fmcomms2_df_gpio/s_axi/axi_lite]
