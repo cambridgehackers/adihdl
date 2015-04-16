@@ -28,68 +28,68 @@ set_property -dict [list CONFIG.NUM_MI {15}] $axi_cpu_interconnect
 set sys_100m_resetn_source [get_bd_pins sys_rstgen/peripheral_aresetn]
 puts [get_bd_pins sys_rstgen/peripheral_aresetn]
 
-set axi_fmcomms2_df_gpio [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_fmcomms2_df_gpio]
-set_property -dict [list CONFIG.C_GPIO_WIDTH {4} CONFIG.C_INTERRUPT_PRESENT {1}] $axi_fmcomms2_df_gpio
-connect_bd_intf_net -intf_net axi_cpu_interconnect_m10_axi [get_bd_intf_pins axi_cpu_interconnect/M10_AXI] [get_bd_intf_pins axi_fmcomms2_df_gpio/s_axi]
+set axi_df_gpio [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_df_gpio]
+set_property -dict [list CONFIG.C_GPIO_WIDTH {4} CONFIG.C_INTERRUPT_PRESENT {1}] $axi_df_gpio
+connect_bd_intf_net -intf_net axi_cpu_interconnect_m10_axi [get_bd_intf_pins axi_cpu_interconnect/M10_AXI] [get_bd_intf_pins axi_df_gpio/s_axi]
 connect_bd_net -net sys_100m_clk [get_bd_pins axi_cpu_interconnect/M10_ACLK] $sys_100m_clk_source
-connect_bd_net -net sys_100m_clk [get_bd_pins axi_fmcomms2_df_gpio/s_axi_aclk] $sys_100m_clk_source
+connect_bd_net -net sys_100m_clk [get_bd_pins axi_df_gpio/s_axi_aclk] $sys_100m_clk_source
 connect_bd_net [get_bd_pins axi_cpu_interconnect/M10_ARESETN] $sys_100m_resetn_source
-connect_bd_net [get_bd_pins axi_fmcomms2_df_gpio/s_axi_aresetn] $sys_100m_resetn_source
-#connect_bd_net -net df_gpio_i [get_bd_ports df_gpio_i]    [get_bd_pins axi_fmcomms2_df_gpio/gpio_io_i]
-#connect_bd_net -net df_gpio_o [get_bd_ports df_gpio_o]    [get_bd_pins axi_fmcomms2_df_gpio/gpio_io_o]
-#connect_bd_net -net df_gpio_t [get_bd_ports df_gpio_t]    [get_bd_pins axi_fmcomms2_df_gpio/gpio_io_t]
-puts [get_bd_pins axi_fmcomms2_df_gpio/*]
-connect_bd_net   [get_bd_pins sys_concat_intc/In4] [get_bd_pins axi_fmcomms2_df_gpio/ip2intc_irpt]
+connect_bd_net [get_bd_pins axi_df_gpio/s_axi_aresetn] $sys_100m_resetn_source
+#connect_bd_net -net df_gpio_i [get_bd_ports df_gpio_i]    [get_bd_pins axi_df_gpio/gpio_io_i]
+#connect_bd_net -net df_gpio_o [get_bd_ports df_gpio_o]    [get_bd_pins axi_df_gpio/gpio_io_o]
+#connect_bd_net -net df_gpio_t [get_bd_ports df_gpio_t]    [get_bd_pins axi_df_gpio/gpio_io_t]
+puts [get_bd_pins axi_df_gpio/*]
+connect_bd_net   [get_bd_pins sys_concat_intc/In4] [get_bd_pins axi_df_gpio/ip2intc_irpt]
 
-set axi_fmcomms2_df_i2c0 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_fmcomms2_df_i2c0]
-#set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_fmcomms2_df_i2c0
-connect_bd_intf_net -intf_net axi_cpu_interconnect_m11_axi [get_bd_intf_pins axi_cpu_interconnect/M11_AXI] [get_bd_intf_pins axi_fmcomms2_df_i2c0/s_axi]
+set axi_df_i2c0 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_df_i2c0]
+#set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_df_i2c0
+connect_bd_intf_net -intf_net axi_cpu_interconnect_m11_axi [get_bd_intf_pins axi_cpu_interconnect/M11_AXI] [get_bd_intf_pins axi_df_i2c0/s_axi]
 connect_bd_net -net sys_100m_clk [get_bd_pins axi_cpu_interconnect/M11_ACLK] $sys_100m_clk_source
-connect_bd_net -net sys_100m_clk [get_bd_pins axi_fmcomms2_df_i2c0/s_axi_aclk] $sys_100m_clk_source
+connect_bd_net -net sys_100m_clk [get_bd_pins axi_df_i2c0/s_axi_aclk] $sys_100m_clk_source
 connect_bd_net [get_bd_pins axi_cpu_interconnect/M11_ARESETN] $sys_100m_resetn_source
-connect_bd_net [get_bd_pins axi_fmcomms2_df_i2c0/s_axi_aresetn] $sys_100m_resetn_source
-connect_bd_intf_net -intf_net i2c0 [get_bd_intf_ports I2C0] [get_bd_intf_pins axi_fmcomms2_df_i2c0/iic]
-puts [get_bd_pins axi_fmcomms2_df_i2c0/*]
-connect_bd_net   [get_bd_pins sys_concat_intc/In0] [get_bd_pins axi_fmcomms2_df_i2c0/iic2intc_irpt]
+connect_bd_net [get_bd_pins axi_df_i2c0/s_axi_aresetn] $sys_100m_resetn_source
+connect_bd_intf_net -intf_net i2c0 [get_bd_intf_ports I2C0] [get_bd_intf_pins axi_df_i2c0/iic]
+puts [get_bd_pins axi_df_i2c0/*]
+connect_bd_net   [get_bd_pins sys_concat_intc/In0] [get_bd_pins axi_df_i2c0/iic2intc_irpt]
 
-set axi_fmcomms2_df_i2c1 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_fmcomms2_df_i2c1]
-#set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_fmcomms2_df_i2c1
-connect_bd_intf_net -intf_net axi_cpu_interconnect_m12_axi [get_bd_intf_pins axi_cpu_interconnect/M12_AXI] [get_bd_intf_pins axi_fmcomms2_df_i2c1/s_axi]
+set axi_df_i2c1 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_df_i2c1]
+#set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_df_i2c1
+connect_bd_intf_net -intf_net axi_cpu_interconnect_m12_axi [get_bd_intf_pins axi_cpu_interconnect/M12_AXI] [get_bd_intf_pins axi_df_i2c1/s_axi]
 connect_bd_net -net sys_100m_clk [get_bd_pins axi_cpu_interconnect/M12_ACLK] $sys_100m_clk_source
-connect_bd_net -net sys_100m_clk [get_bd_pins axi_fmcomms2_df_i2c1/s_axi_aclk] $sys_100m_clk_source
+connect_bd_net -net sys_100m_clk [get_bd_pins axi_df_i2c1/s_axi_aclk] $sys_100m_clk_source
 connect_bd_net [get_bd_pins axi_cpu_interconnect/M12_ARESETN] $sys_100m_resetn_source
-connect_bd_net [get_bd_pins axi_fmcomms2_df_i2c1/s_axi_aresetn] $sys_100m_resetn_source
-connect_bd_intf_net -intf_net i2c1 [get_bd_intf_ports I2C1] [get_bd_intf_pins axi_fmcomms2_df_i2c1/iic]
-connect_bd_net   [get_bd_pins sys_concat_intc/In1] [get_bd_pins axi_fmcomms2_df_i2c1/iic2intc_irpt]
+connect_bd_net [get_bd_pins axi_df_i2c1/s_axi_aresetn] $sys_100m_resetn_source
+connect_bd_intf_net -intf_net i2c1 [get_bd_intf_ports I2C1] [get_bd_intf_pins axi_df_i2c1/iic]
+connect_bd_net   [get_bd_pins sys_concat_intc/In1] [get_bd_pins axi_df_i2c1/iic2intc_irpt]
 
-set axi_fmcomms2_df_i2c2 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_fmcomms2_df_i2c2]
-#set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_fmcomms2_df_i2c2
-connect_bd_intf_net -intf_net axi_cpu_interconnect_m13_axi [get_bd_intf_pins axi_cpu_interconnect/M13_AXI] [get_bd_intf_pins axi_fmcomms2_df_i2c2/s_axi]
+set axi_df_i2c2 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_df_i2c2]
+#set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_df_i2c2
+connect_bd_intf_net -intf_net axi_cpu_interconnect_m13_axi [get_bd_intf_pins axi_cpu_interconnect/M13_AXI] [get_bd_intf_pins axi_df_i2c2/s_axi]
 connect_bd_net -net sys_100m_clk [get_bd_pins axi_cpu_interconnect/M13_ACLK] $sys_100m_clk_source
-connect_bd_net -net sys_100m_clk [get_bd_pins axi_fmcomms2_df_i2c2/s_axi_aclk] $sys_100m_clk_source
+connect_bd_net -net sys_100m_clk [get_bd_pins axi_df_i2c2/s_axi_aclk] $sys_100m_clk_source
 connect_bd_net [get_bd_pins axi_cpu_interconnect/M13_ARESETN] $sys_100m_resetn_source
-connect_bd_net [get_bd_pins axi_fmcomms2_df_i2c2/s_axi_aresetn] $sys_100m_resetn_source
-connect_bd_intf_net -intf_net i2c2 [get_bd_intf_ports I2C2] [get_bd_intf_pins axi_fmcomms2_df_i2c2/iic]
-connect_bd_net   [get_bd_pins sys_concat_intc/In2] [get_bd_pins axi_fmcomms2_df_i2c2/iic2intc_irpt]
+connect_bd_net [get_bd_pins axi_df_i2c2/s_axi_aresetn] $sys_100m_resetn_source
+connect_bd_intf_net -intf_net i2c2 [get_bd_intf_ports I2C2] [get_bd_intf_pins axi_df_i2c2/iic]
+connect_bd_net   [get_bd_pins sys_concat_intc/In2] [get_bd_pins axi_df_i2c2/iic2intc_irpt]
 
-set axi_fmcomms2_df_i2c3 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_fmcomms2_df_i2c3]
-#set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_fmcomms2_df_i2c3
-connect_bd_intf_net -intf_net axi_cpu_interconnect_m14_axi [get_bd_intf_pins axi_cpu_interconnect/M14_AXI] [get_bd_intf_pins axi_fmcomms2_df_i2c3/s_axi]
+set axi_df_i2c3 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic axi_df_i2c3]
+#set_property -dict [list CONFIG.AXI_ACLK_FREQ_MHZ {200}] $axi_df_i2c3
+connect_bd_intf_net -intf_net axi_cpu_interconnect_m14_axi [get_bd_intf_pins axi_cpu_interconnect/M14_AXI] [get_bd_intf_pins axi_df_i2c3/s_axi]
 connect_bd_net -net sys_100m_clk [get_bd_pins axi_cpu_interconnect/M14_ACLK] $sys_100m_clk_source
-connect_bd_net -net sys_100m_clk [get_bd_pins axi_fmcomms2_df_i2c3/s_axi_aclk] $sys_100m_clk_source
+connect_bd_net -net sys_100m_clk [get_bd_pins axi_df_i2c3/s_axi_aclk] $sys_100m_clk_source
 connect_bd_net [get_bd_pins axi_cpu_interconnect/M14_ARESETN] $sys_100m_resetn_source
-connect_bd_net [get_bd_pins axi_fmcomms2_df_i2c3/s_axi_aresetn] $sys_100m_resetn_source
-connect_bd_intf_net -intf_net i2c3 [get_bd_intf_ports I2C3] [get_bd_intf_pins axi_fmcomms2_df_i2c3/iic]
-connect_bd_net   [get_bd_pins sys_concat_intc/In3] [get_bd_pins axi_fmcomms2_df_i2c3/iic2intc_irpt]
+connect_bd_net [get_bd_pins axi_df_i2c3/s_axi_aresetn] $sys_100m_resetn_source
+connect_bd_intf_net -intf_net i2c3 [get_bd_intf_ports I2C3] [get_bd_intf_pins axi_df_i2c3/iic]
+connect_bd_net   [get_bd_pins sys_concat_intc/In3] [get_bd_pins axi_df_i2c3/iic2intc_irpt]
 
 puts $sys_addr_cntrl_space
-puts [get_bd_addr_segs axi_fmcomms2_df_gpio/s_axi/axi_lite]
+puts [get_bd_addr_segs axi_df_gpio/s_axi/axi_lite]
 
-create_bd_addr_seg -range 0x00010000 -offset 0x7C500000 $sys_addr_cntrl_space [get_bd_addr_segs axi_fmcomms2_df_gpio/s_axi/Reg]  SEG_data_df_gpio
-create_bd_addr_seg -range 0x00010000 -offset 0x7C510000 $sys_addr_cntrl_space [get_bd_addr_segs axi_fmcomms2_df_i2c0/s_axi/Reg]  SEG_data_df_i2c0
-create_bd_addr_seg -range 0x00010000 -offset 0x7C520000 $sys_addr_cntrl_space [get_bd_addr_segs axi_fmcomms2_df_i2c1/s_axi/Reg]  SEG_data_df_i2c1
-create_bd_addr_seg -range 0x00010000 -offset 0x7C530000 $sys_addr_cntrl_space [get_bd_addr_segs axi_fmcomms2_df_i2c2/s_axi/Reg]  SEG_data_df_i2c2
-create_bd_addr_seg -range 0x00010000 -offset 0x7C540000 $sys_addr_cntrl_space [get_bd_addr_segs axi_fmcomms2_df_i2c3/s_axi/Reg]  SEG_data_df_i2c3
+create_bd_addr_seg -range 0x00010000 -offset 0x7C500000 $sys_addr_cntrl_space [get_bd_addr_segs axi_df_gpio/s_axi/Reg]  SEG_data_df_gpio
+create_bd_addr_seg -range 0x00010000 -offset 0x7C510000 $sys_addr_cntrl_space [get_bd_addr_segs axi_df_i2c0/s_axi/Reg]  SEG_data_df_i2c0
+create_bd_addr_seg -range 0x00010000 -offset 0x7C520000 $sys_addr_cntrl_space [get_bd_addr_segs axi_df_i2c1/s_axi/Reg]  SEG_data_df_i2c1
+create_bd_addr_seg -range 0x00010000 -offset 0x7C530000 $sys_addr_cntrl_space [get_bd_addr_segs axi_df_i2c2/s_axi/Reg]  SEG_data_df_i2c2
+create_bd_addr_seg -range 0x00010000 -offset 0x7C540000 $sys_addr_cntrl_space [get_bd_addr_segs axi_df_i2c3/s_axi/Reg]  SEG_data_df_i2c3
 
 ::ipx::get_address_spaces *
 puts [::ipx::get_address_spaces *]
