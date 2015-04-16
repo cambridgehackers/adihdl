@@ -14,16 +14,16 @@ foreach pin [get_bd_pins sys_concat_intc/*] {
     puts [get_bd_net -of_objects $pin]
 }
 
-set_property -dict [list CONFIG.NUM_MI {15}] $axi_cpu_interconnect
+set_property -dict [list CONFIG.NUM_MI {16}] $axi_cpu_interconnect
 set sys_100m_resetn_source [get_bd_pins sys_rstgen/peripheral_aresetn]
 puts [get_bd_pins sys_rstgen/peripheral_aresetn]
 
 set axi_df_gpio [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_df_gpio]
 set_property -dict [list CONFIG.C_GPIO_WIDTH {4} CONFIG.C_INTERRUPT_PRESENT {1}] $axi_df_gpio
-connect_bd_intf_net -intf_net axi_cpu_interconnect_m10_axi [get_bd_intf_pins axi_cpu_interconnect/M10_AXI] [get_bd_intf_pins axi_df_gpio/s_axi]
-connect_bd_net -net sys_100m_clk [get_bd_pins axi_cpu_interconnect/M10_ACLK] $sys_100m_clk_source
+connect_bd_intf_net -intf_net axi_cpu_interconnect_m15_axi [get_bd_intf_pins axi_cpu_interconnect/M15_AXI] [get_bd_intf_pins axi_df_gpio/s_axi]
+connect_bd_net -net sys_100m_clk [get_bd_pins axi_cpu_interconnect/M15_ACLK] $sys_100m_clk_source
 connect_bd_net -net sys_100m_clk [get_bd_pins axi_df_gpio/s_axi_aclk] $sys_100m_clk_source
-connect_bd_net [get_bd_pins axi_cpu_interconnect/M10_ARESETN] $sys_100m_resetn_source
+connect_bd_net [get_bd_pins axi_cpu_interconnect/M15_ARESETN] $sys_100m_resetn_source
 connect_bd_net [get_bd_pins axi_df_gpio/s_axi_aresetn] $sys_100m_resetn_source
 #connect_bd_net -net df_gpio_i [get_bd_ports df_gpio_i]    [get_bd_pins axi_df_gpio/gpio_io_i]
 #connect_bd_net -net df_gpio_o [get_bd_ports df_gpio_o]    [get_bd_pins axi_df_gpio/gpio_io_o]
