@@ -13,7 +13,7 @@ set I2C3 [create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.
 puts [get_bd_pins sys_concat_intc/*]
 foreach pin [get_bd_pins sys_concat_intc/*] {
     puts $pin
-    puts [get_bd_net $pin]
+    puts [get_bd_net -of_objects $pin]
 }
 
 set_property -dict [list CONFIG.NUM_MI {15}] $axi_cpu_interconnect
