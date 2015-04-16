@@ -1,6 +1,6 @@
 
   source $ad_hdl_dir/projects/common/zed/zed_system_bd.tcl
-  source ../common/fmcomms1_bd.tcl
+  source $ad_hdl_dir/projects/fmcomms1/common/fmcomms1_bd.tcl
 
   # Add extra register slice between ADC DMA and HP1 to meet timing
   delete_bd_objs [get_bd_intf_nets axi_ad9643_dma_axi]
